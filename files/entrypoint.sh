@@ -29,7 +29,10 @@ if [ "$1" = 'cassandra' ]; then
 		: ${CASSANDRA_SEEDS:="cassandra"}
 	fi
 	: ${CASSANDRA_SEEDS:="$CASSANDRA_BROADCAST_ADDRESS"}
-	
+
+	CASSANDRA_SEED_PROVIDER="${CASSANDRA_SEED_PROVIDER:-org.apache.cassandra.locator.SimpleSeedProvider}"
+	sed -ri 's/- class_name: SEED_PROVIDER/- class_name: '"$CASSANDRA_SEED_PROVIDER"'/' "$CASSANDRA_CONF/cassandra.yaml"
+
 	sed -ri 's/(- seeds:).*/\1 "'"$CASSANDRA_SEEDS"'"/' "$CASSANDRA_CONF/cassandra.yaml"
 
 	for yaml in \
@@ -61,7 +64,7 @@ if [ "$1" = 'cassandra' ]; then
 		fi
 	done
 
-	exec su-exec cassandra "$@"
+	exec su -s /bin/sh cassandra -c "$*"
 fi
 
 exec "$@"

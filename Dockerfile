@@ -29,15 +29,22 @@ LABEL \
     org.label-schema.vcs-url="https://github.com/chrislovecnm/docker-cassandra"
 
 ENV CASSANDRA_HOME=/usr/local/apache-cassandra-${CASSANDRA_VERSION} \
-    JAVA_HOME=/usr/lib/jvm/default-jvm \
-    PATH=$PATH:${JAVA_HOME}/bin:${CASSANDRA_HOME}/bin
+    CASSANDRA_CONF=/etc/cassandra \
+    CASSANDRA_DATA=/cassandra_data \
+    CASSANDRA_LOGS=/var/log/cassandra \
+    JAVA_HOME=/usr/lib/jvm/default-jvm
+
+ENV PATH=${PATH}:${JAVA_HOME}/bin:${CASSANDRA_HOME}/bin
+
+# Alpine jemalloc library path is not expected by C*, so we need to provide it
+#ENV CASSANDRA_LIBJEMALLOC=/usr/lib/libjemalloc.so.2
 
 ADD files /
 
 RUN set -x \
     && apk --no-cache add \
         bash \
-        jemalloc \
+#        jemalloc \
         openjdk8-jre \
         python \
         dumb-init \
@@ -62,7 +69,7 @@ RUN set -x \
       $CASSANDRA_HOME}/tools/*.yaml \
       $CASSANDRA_HOME}/tools/bin/*.bat
 
-VOLUME ["/cassandra_data"]
+VOLUME ["/$CASSANDRA_DATA"]
 
 # 7000: intra-node communication
 # 7001: TLS intra-node communication
