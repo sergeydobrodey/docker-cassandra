@@ -29,7 +29,7 @@ mirror_url=$( wget -q -O - http://www.apache.org/dyn/closer.cgi/cassandra/ \
         | tar -xzf - -C /usr/local \
     && adduser --disabled-password --no-create-home --gecos '' --disabled-login --uid 1000 docker \
     && adduser --disabled-password --no-create-home --gecos '' --disabled-login cassandra \
-    && mv /entrypoint.sh /usr/local/bin/ \
+    && mv /run.sh /usr/local/bin/ \
     && chmod +x /usr/local/bin/* \
     && mkdir -p /cassandra_data/data \
     && mkdir -p /etc/cassandra \

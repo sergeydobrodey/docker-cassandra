@@ -168,5 +168,9 @@ if [[ $CASSANDRA_OPEN_JMX == 'true' ]]; then
   sed -ri 's/ -Dcom\.sun\.management\.jmxremote\.password\.file=\/etc\/cassandra\/jmxremote\.password//' $CASSANDRA_CONF_DIR/cassandra-env.sh
 fi
 
+chmod 700 "${CASSANDRA_DATA}"
+chown -c -R cassandra "${CASSANDRA_DATA}" "${CASSANDRA_CONF_DIR}"
+
 export CLASSPATH=/kubernetes-cassandra.jar
-cassandra -R -f
+
+su cassandra -c "$CASSANDRA_HOME/bin/cassandra -f"
