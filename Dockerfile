@@ -63,11 +63,11 @@ RUN set -x \
     && mkdir -p /etc/cassandra \
     && mv /logback.xml /cassandra.yaml /jvm.options /etc/cassandra/ \
     && rm -rf \
-      $CASSANDRA_HOME}/*.txt \
-      $CASSANDRA_HOME}/doc \
-      $CASSANDRA_HOME}/javadoc \
-      $CASSANDRA_HOME}/tools/*.yaml \
-      $CASSANDRA_HOME}/tools/bin/*.bat
+      $CASSANDRA_HOME/*.txt \
+      $CASSANDRA_HOME/doc \
+      $CASSANDRA_HOME/javadoc \
+      $CASSANDRA_HOME/tools/*.yaml \
+      $CASSANDRA_HOME/tools/bin/*.bat
 
 VOLUME ["/$CASSANDRA_DATA"]
 
