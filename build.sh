@@ -33,27 +33,21 @@ mirror_url=$( wget -q -O - http://www.apache.org/dyn/closer.cgi/cassandra/ \
     && chmod +x /usr/local/bin/* \
     && mkdir -p /cassandra_data/data \
     && mkdir -p /etc/cassandra \
-    && mv /logback.xml /cassandra.yaml /jvm.options /etc/cassandra/ \
-    && rm -rf \
-      $CASSANDRA_HOME}/*.txt \
-      $CASSANDRA_HOME}/doc \
-      $CASSANDRA_HOME}/javadoc \
-      $CASSANDRA_HOME}/tools/*.yaml \
-      $CASSANDRA_HOME}/tools/bin/*.bat
+    && mv /logback.xml /cassandra.yaml /jvm.options /etc/cassandra/
+
+rm -rf $CASSANDRA_HOME/*.txt \
+       $CASSANDRA_HOME/doc \
+       $CASSANDRA_HOME/javadoc \
+       $CASSANDRA_HOME/tools/*.yaml \
+       $CASSANDRA_HOME/tools/bin/*.bat
 
 apt-get -y purge wget localepurge \
   && apt-get autoremove \
   && apt-get clean \
   && rm -rf \
-        doc \
-        man \
-        info \
-        locale \
         /var/lib/apt/lists/* \
         /var/log/* \
         /var/cache/debconf/* \
-        common-licenses \
-        ~/.bashrc \
         /etc/systemd \
         /lib/lsb \
         /lib/udev \
