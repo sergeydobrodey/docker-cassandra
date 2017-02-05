@@ -32,14 +32,85 @@ ENV CASSANDRA_HOME=/usr/local/apache-cassandra-${CASSANDRA_VERSION} \
     CASSANDRA_CONF=/etc/cassandra \
     CASSANDRA_DATA=/cassandra_data \
     CASSANDRA_LOGS=/var/log/cassandra \
-    JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-
-ENV PATH=${PATH}:${JAVA_HOME}/bin:${CASSANDRA_HOME}/bin
+    JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 \
+    PATH=${PATH}:/usr/lib/jvm/java-8-openjdk-amd64/bin:/usr/local/apache-cassandra-${CASSANDRA_VERSION}/bin 
 
 ADD files /
 
-COPY build.sh /tmp
-RUN /tmp/build.sh
+RUN set -e && echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
+  && apt-get update && apt-get -qq -y --force-yes install --no-install-recommends \
+	openjdk-8-jre-headless \
+	libjemalloc1 \
+	localepurge \
+	wget && \
+  mirror_url=$( wget -q -O - http://www.apache.org/dyn/closer.cgi/cassandra/ \
+        | sed -n 's#.*href="\(http://ftp.[^"]*\)".*#\1#p' \
+        | head -n 1 \
+    ) \
+    && wget -q -O - ${mirror_url}/${CASSANDRA_VERSION}/apache-cassandra-${CASSANDRA_VERSION}-bin.tar.gz \
+        | tar -xzf - -C /usr/local \
+    && adduser --disabled-password --no-create-home --gecos '' --disabled-login --uid 1000 docker \
+    && adduser --disabled-password --no-create-home --gecos '' --disabled-login cassandra \
+    && mv /run.sh /usr/local/bin/ \
+    && chmod +x /usr/local/bin/* \
+    && mkdir -p /cassandra_data/data \
+    && mkdir -p /etc/cassandra \
+    && mv /logback.xml /cassandra.yaml /jvm.options /etc/cassandra/ \
+    && apt-get -y purge wget localepurge \
+    && apt-get autoremove \
+    && apt-get clean \
+    && rm -rf \
+        $CASSANDRA_HOME/*.txt \
+        $CASSANDRA_HOME/doc \
+        $CASSANDRA_HOME/javadoc \
+        $CASSANDRA_HOME/tools/*.yaml \
+        $CASSANDRA_HOME/tools/bin/*.bat \
+        $CASSANDRA_HOME/bin/*.bat \
+        $CASSANDRA_HOME/pylib \
+	doc \
+	man \
+	info \
+	locale \
+	common-licenses \
+	~/.bashrc \
+        /var/lib/apt/lists/* \
+        /var/log/* \
+        /var/cache/debconf/* \
+        /etc/systemd \
+        /lib/lsb \
+        /lib/udev \
+        /usr/share/doc/ \
+        /usr/share/doc-base/ \
+        /usr/share/man/ \
+        /tmp/* \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/plugin \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/javaws \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/jjs \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/orbd \
+        /usr/lib/jvm/java-8-openjdk-amd64/bin/pack200 \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/policytool \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/rmid \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/rmiregistry \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/servertool \
+        /usr/lib/jvm/java-8-openjdk-amd64/bin/tnameserv \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/unpack200 \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/javaws.jar \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/deploy* \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/desktop \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/*javafx* \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/*jfx* \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/libdecora_sse.so \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/libprism_*.so \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/libfxplugins.so \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/libglass.so \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/libgstreamer-lite.so \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/libjavafx*.so \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/libjfx*.so \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/jfxrt.jar \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/nashorn.jar \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/oblique-fonts \
+        /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/plugin.jar \
+	/usr/lib/jvm/java-8-openjdk-amd64/man 
 
 VOLUME ["/$CASSANDRA_DATA"]
 
