@@ -1,11 +1,11 @@
 # docker-cassandra
 
-Apache Cassandra docker image based on alpine
-
-Note that this image is unstable and under development.
+Apache Cassandra docker image based on ubuntu
 
 ```
-docker build --build-arg "CASSANDRA_VERSION=3.9" -t local/cassandra .
-docker run --net vnet --name cassandra -d  local/cassandra 
-docker run --net vnet -it --rm local/cassandra cqlsh cassandra.vnet
+make build
+docker run -d gcr.io/google_samples/cassandra:v12
+docker run -ti --rm gcr.io/google_samples/cassandra:v12-DEV cqlsh CASSANDRA_IP
 ```
+Production container: ubuntu slim + openjdk + cassandra - 241 MB
+Developer container: ubuntu slim + openjdk + cassandra + python(cqlsh) - 263 MB

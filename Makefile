@@ -21,16 +21,19 @@ CASSANDRA_VERSION=3.9
 
 all: build
 
-kubernetes-cassandra.jar: ../java/* ../java/src/main/java/io/k8s/cassandra/*.java
-	cd ../java && mvn clean && mvn package
-	mv ../java/target/kubernetes-cassandra*.jar files/kubernetes-cassandra.jar
-	cd ../java && mvn clean
+#kubernetes-cassandra.jar: ../java/* ../java/src/main/java/io/k8s/cassandra/*.java
+#	cd ../java && mvn clean && mvn package
+#	mv ../java/target/kubernetes-cassandra*.jar files/kubernetes-cassandra.jar
+#	cd ../java && mvn clean
 
 
-docker: 
+container:
 	docker build --pull --build-arg "CASSANDRA_VERSION=${CASSANDRA_VERSION}" -t ${PROJECT}/cassandra:${VERSION} .
 
-build: kubernetes-cassandra.jar docker
+container-dev:
+	docker build --pull --build-arg "CASSANDRA_VERSION=${CASSANDRA_VERSION}" --build-arg "DEV_CONTAINER=true" -t ${PROJECT}/cassandra:${VERSION}-DEV .
+
+build: container container-dev
 
 push: build
 	gcloud docker -- push ${PROJECT}/cassandra:${VERSION}

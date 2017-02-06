@@ -17,6 +17,7 @@ FROM gcr.io/google_containers/ubuntu-slim:0.6
 ARG BUILD_DATE
 ARG VCS_REF
 ARG CASSANDRA_VERSION
+ARG DEV_CONTAINER
 
 LABEL \
     org.label-schema.build-date=$BUILD_DATE \
@@ -33,7 +34,7 @@ ENV CASSANDRA_HOME=/usr/local/apache-cassandra-${CASSANDRA_VERSION} \
     CASSANDRA_DATA=/cassandra_data \
     CASSANDRA_LOGS=/var/log/cassandra \
     JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 \
-    PATH=${PATH}:/usr/lib/jvm/java-8-openjdk-amd64/bin:/usr/local/apache-cassandra-${CASSANDRA_VERSION}/bin 
+    PATH=${PATH}:/usr/lib/jvm/java-8-openjdk-amd64/bin:/usr/local/apache-cassandra-${CASSANDRA_VERSION}/bin
 
 ADD files /
 
@@ -56,6 +57,7 @@ RUN set -e && echo 'debconf debconf/frontend select Noninteractive' | debconf-se
     && mkdir -p /cassandra_data/data \
     && mkdir -p /etc/cassandra \
     && mv /logback.xml /cassandra.yaml /jvm.options /etc/cassandra/ \
+    && if [ -n "$DEV_CONTAINER" ]; then apt-get -y --no-install-recommends install python; fi \
     && apt-get -y purge wget localepurge \
     && apt-get autoremove \
     && apt-get clean \
@@ -110,7 +112,7 @@ RUN set -e && echo 'debconf debconf/frontend select Noninteractive' | debconf-se
         /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/nashorn.jar \
         /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/oblique-fonts \
         /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/plugin.jar \
-	/usr/lib/jvm/java-8-openjdk-amd64/man 
+	/usr/lib/jvm/java-8-openjdk-amd64/man
 
 VOLUME ["/$CASSANDRA_DATA"]
 
